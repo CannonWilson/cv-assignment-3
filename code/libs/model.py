@@ -451,113 +451,14 @@ class FCOS(nn.Module):
         # print('ctr_logits', type(ctr_logits), 'ctr_logits shape: ', ctr_logits.shape)
         # ctr_logits is a tensor with shape [4, 3150, 1]
 
-        matched_idxs = []
-        num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
-        anchors_per_image = torch.cat([level_points.reshape(-1, 2) for level_points in points], dim=0)
-
-        for target_idx, target in enumerate(targets):
-
-            if target["boxes"].numel() == 0:
-                matched_idxs.append(
-                    torch.full((anchors_per_image.size(0),), -1, dtype=torch.int64, device=anchors_per_image.device)
-                )
-                continue
-
-            gt_boxes = target['boxes']
-            gt_centers = (gt_boxes[..., :2] + gt_boxes[..., 2:])/2
-            anchor_centers = (anchors_per_image[:, :2] + anchors_per_image[:, 2:]) / 2  # N
-            anchor_sizes = anchors_per_image[:, 2] - anchors_per_image[:, 0]
-            pairwise_match = (anchor_centers[:, None, :] - gt_centers[None, :, :]).abs_().max(
-                dim=2
-            ).values < self.center_sampling_radius * anchor_sizes[:, None]
-            # compute pairwise distance between N points and M boxes
-            x, y = anchor_centers.unsqueeze(dim=2).unbind(dim=1)  # (N, 1)
-            x0, y0, x1, y1 = gt_boxes.unsqueeze(dim=0).unbind(dim=2)  # (1, M)
-            pairwise_dist = torch.stack([x - x0, y - y0, x1 - x, y1 - y], dim=2)  # (N, M)
-
-            # anchor point must be inside gt
-            pairwise_match &= pairwise_dist.min(dim=2).values > 0
-
-            # each anchor is only responsible for certain scale range.
-            lower_bound = anchor_sizes * 4
-            lower_bound[: num_anchors_per_level[0]] = 0
-            upper_bound = anchor_sizes * 8
-            upper_bound[-num_anchors_per_level[-1] :] = float("inf")
-            pairwise_dist = pairwise_dist.max(dim=2).values
-            pairwise_match &= (pairwise_dist > lower_bound[:, None]) & (pairwise_dist < upper_bound[:, None])
-
-            # match the GT box with minimum area, if there are multiple GT matches
-            gt_areas = (gt_boxes[:, 2] - gt_boxes[:, 0]) * (gt_boxes[:, 3] - gt_boxes[:, 1])  # N
-            pairwise_match = pairwise_match.to(torch.float32) * (1e8 - gt_areas[None, :])
-            min_values, matched_idx = pairwise_match.max(dim=1)  # R, per-anchor match
-            matched_idx[min_values < 1e-5] = -1  # unmatched anchors are assigned -1
-
-            matched_idxs.append(matched_idx)
-
-
-    
-        all_gt_classes_targets = []
-        all_gt_boxes_targets = []
-        for targets_per_image, matched_idxs_per_image in zip(targets, matched_idxs):
-            if len(targets_per_image["labels"]) == 0:
-                gt_classes_targets = targets_per_image["labels"].new_zeros((len(matched_idxs_per_image),))
-                gt_boxes_targets = targets_per_image["boxes"].new_zeros((len(matched_idxs_per_image), 4))
-            else:
-                gt_classes_targets = targets_per_image["labels"][matched_idxs_per_image.clip(min=0)]
-                gt_boxes_targets = targets_per_image["boxes"][matched_idxs_per_image.clip(min=0)]
-            gt_classes_targets[matched_idxs_per_image < 0] = -1  # backgroud
-            all_gt_classes_targets.append(gt_classes_targets)
-            all_gt_boxes_targets.append(gt_boxes_targets)
-
-        # List[Tensor] to Tensor conversion of  `all_gt_boxes_target`, `all_gt_classes_targets` and `anchors`
-        all_gt_boxes_targets, all_gt_classes_targets, anchors = (
-            torch.stack(all_gt_boxes_targets),
-            torch.stack(all_gt_classes_targets),
-            torch.stack(anchors),
-        )
-
-        # compute foregroud
-        foregroud_mask = all_gt_classes_targets >= 0
-        num_foreground = foregroud_mask.sum().item()
-
-        # classification loss
-        gt_classes_targets = torch.zeros_like(cls_logits)
-        gt_classes_targets[foregroud_mask, all_gt_classes_targets[foregroud_mask]] = 1.0
-        loss_cls = sigmoid_focal_loss(cls_logits, gt_classes_targets, reduction="sum")
-
-        # amp issue: pred_boxes need to convert float
-        pred_boxes = self.box_coder.decode(reg_outputs, anchors)
-
-        # regression loss: GIoU loss
-        loss_bbox_reg = giou_loss(
-            pred_boxes[foregroud_mask],
-            all_gt_boxes_targets[foregroud_mask],
-            reduction="sum",
-        )
-
-        # ctrness loss
-
-        bbox_reg_targets = self.box_coder.encode(anchors, all_gt_boxes_targets)
-
-        if len(bbox_reg_targets) == 0:
-            gt_ctrness_targets = bbox_reg_targets.new_zeros(bbox_reg_targets.size()[:-1])
-        else:
-            left_right = bbox_reg_targets[:, :, [0, 2]]
-            top_bottom = bbox_reg_targets[:, :, [1, 3]]
-            gt_ctrness_targets = torch.sqrt(
-                (left_right.min(dim=-1)[0] / left_right.max(dim=-1)[0])
-                * (top_bottom.min(dim=-1)[0] / top_bottom.max(dim=-1)[0])
-            )
-        pred_centerness = ctr_logits.squeeze(dim=2)
-        loss_bbox_ctrness = nn.functional.binary_cross_entropy_with_logits(
-            pred_centerness[foregroud_mask], gt_ctrness_targets[foregroud_mask], reduction="sum"
-        )
+        """ REDACTED """
+        # Could not get compute_loss to work in time.
 
         return {
-            "classification": loss_cls / max(1, num_foreground),
-            "bbox_regression": loss_bbox_reg / max(1, num_foreground),
-            "bbox_ctrness": loss_bbox_ctrness / max(1, num_foreground),
-            "final_loss": (loss_cls + loss_bbox_reg + loss_bbox_ctrness) /  max(1, num_foreground)
+            "classification": 0,
+            "bbox_regression": 0,
+            "bbox_ctrness": 0,
+            "final_loss": 0
         }
 
 
@@ -597,4 +498,8 @@ class FCOS(nn.Module):
     def inference(
         self, points, strides, cls_logits, reg_outputs, ctr_logits, image_shapes
     ):
+
+        # Loop over every pyramid level
+        print('points: ', points.shape())
+
         return detections
