@@ -401,13 +401,31 @@ class FCOS(nn.Module):
     def compute_loss(
         self, targets, points, strides, reg_range, cls_logits, reg_outputs, ctr_logits
     ):
-        print('targets: ', type(targets), targets)
-        print('points: ', type(points), points)
-        print('strides: ', type(strides), strides)
-        print('reg_range: ', type(reg_range), reg_range)
-        print('cls_logits: ', type(cls_logits), cls_logits)
-        print('reg_outputs', type(reg_outputs), reg_outputs)
-        print('ctr_logits', type(ctr_logits), ctr_logits)
+        
+        print('targets: ', type(targets), 'length of targets: ', len(targets))
+        # Targets is a list of dicts where the dicts have fields
+        # 'boxes', 'labels', 'image_id', 'area', and 'iscrowd'.
+        # Each of the values in the dicts are tensors.
+        # 'boxes' looks like this:
+        # [[ 67.5180,  91.8000, 261.8880, 193.1200],
+        #  [ 72.2920,  78.2000, 103.6640,  91.8000]]
+        # 'labels' looks like this:
+        # [6, 6]
+        # 'image_id' looks like this:
+        # [1166]
+        # 'area' looks like this:
+        # [42465,   920]
+        # 'iscrowd' looks like this:
+        # [0, 0]
+
+        print('points: ', type(points), 'length of points: ', len(points))
+        # points is a list of tensors 
+
+        # print('strides: ', type(strides), strides)
+        # print('reg_range: ', type(reg_range), reg_range)
+        # print('cls_logits: ', type(cls_logits), cls_logits)
+        # print('reg_outputs', type(reg_outputs), reg_outputs)
+        # print('ctr_logits', type(ctr_logits), ctr_logits)
         return losses
 
     """
