@@ -450,16 +450,14 @@ class FCOS(nn.Module):
         # ctr_logits is a tensor with shape [4, 3150, 1]
 
         matched_idxs = []
+        num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
+        
         for anchors_per_image, targets_per_image in zip(points, targets):
             if targets_per_image["boxes"].numel() == 0:
                 matched_idxs.append(
                     torch.full((anchors_per_image.size(0),), -1, dtype=torch.int64, device=anchors_per_image.device)
                 )
                 continue
-            
-            num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
-            print('num_anchors_per_level: ', num_anchors_per_level)
-            raise Exception("poop buckets")
 
             gt_boxes = targets_per_image["boxes"]
             gt_centers = (gt_boxes[:, :2] + gt_boxes[:, 2:]) / 2  # Nx2
