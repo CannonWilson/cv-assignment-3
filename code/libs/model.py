@@ -507,12 +507,25 @@ class FCOS(nn.Module):
     ):
         # Output is a list of dictionaries for each item, so 
         # let's loop over each image
-        for img in image_shapes:
-            print('img: ', img)
+        output_lst = []
+        for idx in range(len(image_shapes)):
 
-        # Loop over every pyramid level
-        for level in points:
-            print('level shape: ', level.size())
+            boxes = []
+            scores = []
+            labels = []
+
+            curr_cls_logits = [layer_logits[idx] for layer_logits in cls_logits]
+            idx_cls_logits = cls_logits[idx, :]
+            print('curr_cls_logits', type(curr_cls_logits), ' shape: ', curr_cls_logits.size())
+            print('idx_cls_logits', type(idx_cls_logits), ' shape: ', idx_cls_logits.size())
+
+            # Loop over every pyramid level
+            for level_idx, level_pts in enumerate(points):
+                
+                # Compute the object scores
+                # From the paper, 
+                # s_{x,y} = sqrt( p_{x,y} × o_{x,y} )
+                object_score = math.sqrt( ctr_logits[level_idx] )
         
 
         return detections
