@@ -401,7 +401,7 @@ class FCOS(nn.Module):
     def compute_loss(
         self, targets, points, strides, reg_range, cls_logits, reg_outputs, ctr_logits
     ):
-        
+        # === TARGETS === #
         # print('targets: ', type(targets), 'length of targets: ', len(targets))
         # Targets is a list of dicts where the dicts have fields
         # 'boxes', 'labels', 'image_id', 'area', and 'iscrowd'.
@@ -418,16 +418,29 @@ class FCOS(nn.Module):
         # 'iscrowd' looks like this:
         # [0, 0]
 
-        print('points: ', type(points), 'length of points: ', len(points))
-        # points is a list of tensors
-        for i in range(len(points)):
-            print('points at index i shape: ', points[i].shape)
+        # === POINTS === #
+        # print('points: ', type(points), 'length of points: ', len(points))
+        # points is a list of tensors, for instance with length 3:
+        # index 0: torch.Size([40, 60, 2])
+        # index 1: torch.Size([20, 30, 2])
+        # index 2: torch.Size([10, 15, 2])
 
+        # === STRIDES === #
         # print('strides: ', type(strides), strides)
+        # strides is a tensor that looks like this:
+        # [ 8., 16., 32.]
+
+        # === REG_RANGE === #
         # print('reg_range: ', type(reg_range), reg_range)
-        # print('cls_logits: ', type(cls_logits), cls_logits)
-        # print('reg_outputs', type(reg_outputs), reg_outputs)
-        # print('ctr_logits', type(ctr_logits), ctr_logits)
+        # reg_range is a tensor that looks like this:
+        # [[  0.,  32.],
+        # [ 32.,  64.],
+        # [ 64., 128.]]
+
+        
+        print('cls_logits: ', type(cls_logits), 'cls_logits shape: ', cls_logits.shape)
+        print('reg_outputs', type(reg_outputs), 'reg_outputs shape: ', reg_outputs.shape)
+        print('ctr_logits', type(ctr_logits), 'ctr_logits shape: ', ctr_logits.shape)
         return losses
 
     """
