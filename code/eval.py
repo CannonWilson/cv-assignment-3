@@ -15,7 +15,7 @@ from torchvision.models.detection import FCOS
 from torchvision.models.detection.anchor_utils import AnchorGenerator
 
 # our code
-from libs import load_config, build_dataset, build_dataloader, FCOS, evaluate
+from libs import load_config, build_dataset, build_dataloader, evaluate
 
 
 ################################################################################
