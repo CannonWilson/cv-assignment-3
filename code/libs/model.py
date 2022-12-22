@@ -505,6 +505,10 @@ class FCOS(nn.Module):
     def inference(
         self, points, strides, cls_logits, reg_outputs, ctr_logits, image_shapes
     ):
+        # Output is a list of dictionaries for each item, so 
+        # let's loop over each image
+        for img in image_shapes:
+            print('img: ', img)
 
         # Loop over every pyramid level
         for level in points:
