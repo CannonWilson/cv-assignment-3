@@ -456,8 +456,10 @@ class FCOS(nn.Module):
                     torch.full((anchors_per_image.size(0),), -1, dtype=torch.int64, device=anchors_per_image.device)
                 )
                 continue
-
-            num_anchors_per_level = [t.size[0] * t.size[1] for t in points]
+            
+            num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
+            print('num_anchors_per_level: ', num_anchors_per_level)
+            raise Exception("poop buckets")
 
             gt_boxes = targets_per_image["boxes"]
             gt_centers = (gt_boxes[:, :2] + gt_boxes[:, 2:]) / 2  # Nx2
