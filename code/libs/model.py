@@ -507,6 +507,8 @@ class FCOS(nn.Module):
     ):
 
         # Loop over every pyramid level
-        print('points: ', points.shape())
+        for level in points:
+            print('level shape: ', level.shape())
+        
 
         return detections
