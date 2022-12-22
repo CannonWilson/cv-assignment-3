@@ -451,8 +451,9 @@ class FCOS(nn.Module):
 
         matched_idxs = []
         num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
-        
-        for anchors_per_image, targets_per_image in zip(points, targets):
+
+        for target_idx, targets_per_image in enumerate(targets):
+            anchors_per_image = targets_per_image['boxes']
             if targets_per_image["boxes"].numel() == 0:
                 matched_idxs.append(
                     torch.full((anchors_per_image.size(0),), -1, dtype=torch.int64, device=anchors_per_image.device)
