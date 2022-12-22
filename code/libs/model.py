@@ -504,6 +504,9 @@ class FCOS(nn.Module):
             gt_classes_targets[matched_idxs_per_image < 0] = -1  # backgroud
             all_gt_classes_targets.append(gt_classes_targets)
             all_gt_boxes_targets.append(gt_boxes_targets)
+        
+        print('=== all_gt_boxes_targets ===')
+        print(all_gt_boxes_targets)
 
         # List[Tensor] to Tensor conversion of  `all_gt_boxes_target`, `all_gt_classes_targets` and `anchors`
         all_gt_boxes_targets, all_gt_classes_targets, anchors = (
