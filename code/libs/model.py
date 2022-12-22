@@ -401,6 +401,13 @@ class FCOS(nn.Module):
     def compute_loss(
         self, targets, points, strides, reg_range, cls_logits, reg_outputs, ctr_logits
     ):
+        print('targets: ', type(targets), targets)
+        print('points: ', type(points), points)
+        print('strides: ', type(strides), strides)
+        print('reg_range: ', type(reg_range), reg_range)
+        print('cls_logits: ', type(cls_logits), cls_logits)
+        print('reg_outputs', type(reg_outputs), reg_outputs)
+        print('ctr_logits', type(ctr_logits), ctr_logits)
         return losses
 
     """
