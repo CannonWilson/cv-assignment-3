@@ -401,6 +401,8 @@ class FCOS(nn.Module):
     def compute_loss(
         self, targets, points, strides, reg_range, cls_logits, reg_outputs, ctr_logits
     ):
+        
+        """ REFERENCE INFO ABOUT ARGUMENTS """
         # === TARGETS === #
         # print('targets: ', type(targets), 'length of targets: ', len(targets))
         # Targets is a list of dicts where the dicts have fields
@@ -451,20 +453,20 @@ class FCOS(nn.Module):
 
         matched_idxs = []
         num_anchors_per_level = [t.size(0) * t.size(1) for t in points]
+        anchors_per_image = torch.cat([level_points.reshape(-1, 2) for level_points in points], dim=0)
 
-        for target_idx, targets_per_image in enumerate(targets):
-            anchors_per_image = targets_per_image['boxes']
-            if targets_per_image["boxes"].numel() == 0:
+        for target_idx, target in enumerate(targets):
+
+            if target["boxes"].numel() == 0:
                 matched_idxs.append(
                     torch.full((anchors_per_image.size(0),), -1, dtype=torch.int64, device=anchors_per_image.device)
                 )
                 continue
 
-            gt_boxes = targets_per_image["boxes"]
-            gt_centers = (gt_boxes[:, :2] + gt_boxes[:, 2:]) / 2  # Nx2
+            gt_boxes = target['boxes']
+            gt_centers = (gt_boxes[..., :2] + gt_boxes[..., 2:])/2
             anchor_centers = (anchors_per_image[:, :2] + anchors_per_image[:, 2:]) / 2  # N
             anchor_sizes = anchors_per_image[:, 2] - anchors_per_image[:, 0]
-            # center sampling: anchor point must be close enough to gt center.
             pairwise_match = (anchor_centers[:, None, :] - gt_centers[None, :, :]).abs_().max(
                 dim=2
             ).values < self.center_sampling_radius * anchor_sizes[:, None]
@@ -492,6 +494,8 @@ class FCOS(nn.Module):
 
             matched_idxs.append(matched_idx)
 
+
+    
         all_gt_classes_targets = []
         all_gt_boxes_targets = []
         for targets_per_image, matched_idxs_per_image in zip(targets, matched_idxs):
@@ -504,13 +508,10 @@ class FCOS(nn.Module):
             gt_classes_targets[matched_idxs_per_image < 0] = -1  # backgroud
             all_gt_classes_targets.append(gt_classes_targets)
             all_gt_boxes_targets.append(gt_boxes_targets)
-        
-        print('=== all_gt_boxes_targets ===')
-        print(all_gt_boxes_targets)
 
         # List[Tensor] to Tensor conversion of  `all_gt_boxes_target`, `all_gt_classes_targets` and `anchors`
         all_gt_boxes_targets, all_gt_classes_targets, anchors = (
-            torch.stack(all_gt_boxes_targets, dim=0),
+            torch.stack(all_gt_boxes_targets),
             torch.stack(all_gt_classes_targets),
             torch.stack(anchors),
         )
@@ -552,15 +553,11 @@ class FCOS(nn.Module):
             pred_centerness[foregroud_mask], gt_ctrness_targets[foregroud_mask], reduction="sum"
         )
 
-        cls_loss = loss_cls / max(1, num_foreground)
-        reg_loss = loss_bbox_reg / max(1, num_foreground)
-        ctr_loss = loss_bbox_ctrness / max(1, num_foreground)
-
         return {
-            "cls_loss": cls_loss,
-            "reg_loss": reg_loss,
-            "ctr_loss": ctr_loss,
-            "final_loss": cls_loss + reg_loss + ctr_loss
+            "classification": loss_cls / max(1, num_foreground),
+            "bbox_regression": loss_bbox_reg / max(1, num_foreground),
+            "bbox_ctrness": loss_bbox_ctrness / max(1, num_foreground),
+            "final_loss": (loss_cls + loss_bbox_reg + loss_bbox_ctrness) /  max(1, num_foreground)
         }
 
 
