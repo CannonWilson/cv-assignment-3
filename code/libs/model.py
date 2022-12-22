@@ -454,9 +454,9 @@ class FCOS(nn.Module):
         """ ABOVE CODE REDACTED """
         # Could not get compute_loss to work in time.
         norm = max(1, 1)
-        cls_loss = sigmoid_focal_loss(torch.randn(1), torch.randn(1), reduction="sum")
-        reg_loss = giou_loss(torch.randn(1, 4), torch.randn(1, 4))
-        input = torch.randn(3, requires_grad=True)
+        cls_loss = sigmoid_focal_loss(torch.zeros(1), torch.zeros(1), reduction="sum")
+        reg_loss = giou_loss(torch.zeros(1, 4), torch.zeros(1, 4))
+        input = torch.zeros(3, requires_grad=True)
         target = torch.empty(3).random_(2)
         ctr_loss = nn.functional.binary_cross_entropy_with_logits(input, target)
         
