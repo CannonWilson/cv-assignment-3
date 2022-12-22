@@ -529,6 +529,7 @@ class FCOS(nn.Module):
                 # s_{x,y} = sqrt( p_{x,y} × o_{x,y} )
                 object_score_t = torch.sqrt( idx_cls_logits[level_idx] * idx_ctr_logits[level_idx] )
                 object_score_t = object_score_t[object_score_t > self.score_thresh]
+                print('OBJECT SCORE: ', object_score_t)
                 print('top k candidates: ', self.topk_candidates)
                 object_score_t = torch.topk(object_score_t, self.topk_candidates)
                 print('OBJECT SCORE: ', object_score_t)
