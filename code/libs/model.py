@@ -455,10 +455,10 @@ class FCOS(nn.Module):
         # Could not get compute_loss to work in time.
 
         return {
-            "classification": 0,
-            "bbox_regression": 0,
-            "bbox_ctrness": 0,
-            "final_loss": 0
+            "classification": torch.zeros(1),
+            "bbox_regression": torch.zeros(1),
+            "bbox_ctrness": torch.zeros(1),
+            "final_loss": torch.zeros(1)
         }
 
 
