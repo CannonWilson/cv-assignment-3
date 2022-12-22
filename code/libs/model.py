@@ -510,7 +510,7 @@ class FCOS(nn.Module):
 
         # List[Tensor] to Tensor conversion of  `all_gt_boxes_target`, `all_gt_classes_targets` and `anchors`
         all_gt_boxes_targets, all_gt_classes_targets, anchors = (
-            torch.stack(all_gt_boxes_targets),
+            torch.stack(all_gt_boxes_targets, dim=0),
             torch.stack(all_gt_classes_targets),
             torch.stack(anchors),
         )
