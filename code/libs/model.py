@@ -516,8 +516,8 @@ class FCOS(nn.Module):
 
             curr_cls_logits = [layer_logits[idx] for layer_logits in cls_logits]
             idx_cls_logits = cls_logits[idx, :]
-            print('curr_cls_logits', type(curr_cls_logits), ' shape: ', curr_cls_logits.size())
-            print('idx_cls_logits', type(idx_cls_logits), ' shape: ', idx_cls_logits.size())
+            print('curr_cls_logits', type(curr_cls_logits), ' shape: ', curr_cls_logits)
+            print('idx_cls_logits', type(idx_cls_logits), ' shape: ', idx_cls_logits)
 
             # Loop over every pyramid level
             for level_idx, level_pts in enumerate(points):
