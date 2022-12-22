@@ -527,6 +527,8 @@ class FCOS(nn.Module):
                 # Compute the object scores
                 # From the paper, 
                 # s_{x,y} = sqrt( p_{x,y} × o_{x,y} )
+                print('idx_cls_logits[level_idx]: ', idx_cls_logits[level_idx])
+                print('idx_ctr_logits[level_idx]: ', idx_ctr_logits[level_idx])
                 object_score_t = torch.sqrt( idx_cls_logits[level_idx] * idx_ctr_logits[level_idx] )
                 print('OBJECT SCORE BEFORE: ', object_score_t)
                 object_score_t = object_score_t[object_score_t > self.score_thresh]
