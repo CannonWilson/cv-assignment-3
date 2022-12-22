@@ -514,10 +514,12 @@ class FCOS(nn.Module):
             scores = []
             labels = []
 
-            curr_cls_logits = [layer_logits[idx] for layer_logits in cls_logits]
+            # curr_cls_logits = [logits[idx] for logits in cls_logits]
             idx_cls_logits = cls_logits[idx, :]
-            print('curr_cls_logits', type(curr_cls_logits), ' shape: ', curr_cls_logits)
-            print('idx_cls_logits', type(idx_cls_logits), ' shape: ', idx_cls_logits)
+            # curr_reg_outputs = [logits[idx] for logits in reg_outputs]
+            idx_reg_outputs = reg_outputs[idx, :]
+            # curr_ctr_logits = [logits[idx] for logits in ctr_logits]
+            idx_ctr_logits = ctr_logits[idx, :]
 
             # Loop over every pyramid level
             for level_idx, level_pts in enumerate(points):
@@ -525,7 +527,8 @@ class FCOS(nn.Module):
                 # Compute the object scores
                 # From the paper, 
                 # s_{x,y} = sqrt( p_{x,y} × o_{x,y} )
-                object_score = math.sqrt( ctr_logits[level_idx] )
+                object_score = math.sqrt( idx_cls_logits[level_idx] * idx_ctr_logits[level_idx] )
+                print('OBJECT SCORE: ', object_score)
         
 
         return detections
