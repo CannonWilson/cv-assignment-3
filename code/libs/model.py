@@ -402,7 +402,7 @@ class FCOS(nn.Module):
         self, targets, points, strides, reg_range, cls_logits, reg_outputs, ctr_logits
     ):
         
-        print('targets: ', type(targets), 'length of targets: ', len(targets))
+        # print('targets: ', type(targets), 'length of targets: ', len(targets))
         # Targets is a list of dicts where the dicts have fields
         # 'boxes', 'labels', 'image_id', 'area', and 'iscrowd'.
         # Each of the values in the dicts are tensors.
@@ -419,7 +419,9 @@ class FCOS(nn.Module):
         # [0, 0]
 
         print('points: ', type(points), 'length of points: ', len(points))
-        # points is a list of tensors 
+        # points is a list of tensors
+        for i in range(len(points)):
+            print('points at index i shape: ', points[i].shape)
 
         # print('strides: ', type(strides), strides)
         # print('reg_range: ', type(reg_range), reg_range)
